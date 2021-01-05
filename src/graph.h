@@ -88,6 +88,8 @@ int mgraph_add_edge(mgraph_p g, uint i, uint j);
 
 mgraph_p mgraph_random(uint n);
 
+mgraph_p mgraph_from_file(char* path);
+
 void mgraph_free(mgraph_p g);
 
 /* returns the degree of i in G*/
@@ -114,6 +116,10 @@ void mgraph_free(mgraph_p g);
 graph_p graph_new(uint n);
 
 graph_p graph_from_mgraph(mgraph_p g);
+
+graph_p graph_from_file(char* path);
+
+int graph_to_file(graph_p g, char* path);
 
 graph_p graph_random(uint n);
 

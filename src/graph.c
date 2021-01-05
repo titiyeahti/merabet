@@ -96,6 +96,28 @@ int mgraph_add_edge(mgraph_p g, uint i, uint j){
   return flag;
 }
 
+mgraph_p mgraph_from_file(char* path){
+  FILE* stream;
+
+  stream = fopen(path, "r");
+  if(!stream){
+    EXIT_ERROR("mgraph_from_file");
+  }
+
+  uint n, m, i, j;
+  fscanf(stream, "%d %d\n", &n, &m);
+  
+  mgraph_p res = mgraph_new(n);
+
+  while (m>0){
+    fscanf(stream, "%d %d\n", &i, &j);
+    mgraph_add_edge(res, i, j);
+    m--;
+  }
+  fclose(stream);
+  return res;
+}
+
 mgraph_p mgraph_random(uint n){
   uint edges_left = n-1 + 3*( (uint) roundf(sqrtf((float) n)) );
   uint nb_edges = edges_left;
@@ -185,6 +207,38 @@ graph_p graph_from_mgraph(mgraph_p g){
   }
 
   return res;
+}
+
+graph_p graph_from_file(char* path){
+  mgraph_p g = mgraph_from_file(path);
+  graph_p res = graph_from_mgraph(g);
+  mgraph_free(g);
+  return res;
+}
+
+int graph_to_file(graph_p g, char* path){
+  FILE* stream;
+  stream = fopen(path, "w");
+  if(!stream){
+    EXIT_ERROR("graph_to_file");
+  }
+  uint m = g->vertices[g->n] / 2;
+  
+  fprintf(stream, "%d %d\n", g->n, m);
+
+  uint i;
+  uint *v;
+  for(i=0; i<g->n && m>0; i++){
+    FOR_ALL_NEIGH(g, i, v){
+      if (*v>i){
+        fprintf(stream, "%d %d\n", i, *v);
+        m --;
+      }
+    }
+  }
+
+  fclose(stream);
+  return 1;
 }
 
 graph_p graph_random(uint n){
