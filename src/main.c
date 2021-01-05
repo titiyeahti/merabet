@@ -20,8 +20,8 @@
 #include "graph.h"
 
 void main(void){
-  graph_p g = graph_random(25);
-  graph_print(g);
+  mgraph_p g = mgraph_random(10000);
+/*  graph_print(g);*/
 
-  graph_free(g);
+  mgraph_free(g);
 }
