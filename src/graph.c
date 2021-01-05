@@ -157,7 +157,6 @@ mgraph_p mgraph_random(uint n){
   queue_free(q);
   queue_free(in);
 
-  printf("expected : %d, real : %d\n", nb_edges, res->m);
   return res;
 }
 
