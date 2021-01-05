@@ -132,6 +132,9 @@ mgraph_p mgraph_random(uint n){
     edges_left -= flag;
   }
 
+  queue_free(q);
+  queue_free(in);
+
   printf("expected : %d, real : %d\n", nb_edges, res->m);
   return res;
 }
@@ -141,9 +144,11 @@ void mgraph_free(mgraph_p g){
   g->deg = NULL;
   uint i;
   for(i=0; i<g->n; i++){
-    free(g->neigh[i]);
+    list_free(g->neigh[i]);
     g->neigh[i] = NULL;
   }
+  free(g->neigh);
+  g->neigh = NULL;
 
   free(g);
   g = NULL;
@@ -164,7 +169,7 @@ graph_p graph_from_mgraph(mgraph_p g){
   uint i;
   graph_p res = graph_new(g->n);
 
-  res->vertices[0];
+  res->vertices[0] = 0;
   for(i=1; i<res->n+1; i++)
     res->vertices[i] = res->vertices[i-1] + g->deg[i-1];
 
