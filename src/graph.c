@@ -22,31 +22,37 @@
 
 list list_add_sorted(list l, uint v, int* flag){
   if(l == NULL || l->v > v){
-    list r = malloc(sizeof(maillon));
+    list r = malloc(sizeof(struct maillon));
     r->v = v;
     r->next = l;
     *flag = 1;
     return r;
   }
   else {
+    *flag = 0;
     if(l->v != v){
-      *flag = 0;
-      l->next = list_add_sorted(l->next, v);
+      l->next = list_add_sorted(l->next, v, flag);
     }
     return l;
   }
 }
 
-uint* list_to_array(list l, uint n){
-  uint* ret = malloc(sizeof(uint)*n);
+void list_to_array(list l, uint* dest, uint n){
   uint i = 0;
   while(l != NULL && i < n){
-    ret[i] = l->v;
+    dest[i] = l->v;
     l = l->next;
     i ++;
   }
+}
 
-  return ret;
+void list_print(list l){
+  if(l){
+    printf("%d ", l->v);
+    list_print(l->next);
+  }
+  else 
+    printf("\n");
 }
 
 void list_free(list l){
@@ -75,26 +81,59 @@ mgraph_p mgraph_new(uint n){
   return res;
 }
 
-void mgraph_add_edge(mgraph_p g, uint i, uint j){
+int mgraph_add_edge(mgraph_p g, uint i, uint j){
+  int flag;
 
+  g->neigh[i] = list_add_sorted(g->neigh[i], j, &flag);
+  g->neigh[j] = list_add_sorted(g->neigh[j], i, &flag);
+  
+  if(flag){
+    g->deg[i] ++;
+    g->deg[j] ++;
+    g->m += 2;
+  }
+
+  return flag;
 }
 
 mgraph_p mgraph_random(uint n){
-  uint i, v, cq, cin;
-  res = mgraph_new(n);
+  uint edges_left = n-1 + 3*( (uint) roundf(sqrtf((float) n)) );
+  uint nb_edges = edges_left;
+  uint i, v, v2, card, flag;
+  mgraph_p res = mgraph_new(n);
   queue_p q = queue_new(n);
   for(i=0; i < n-1; i++)
     queue_push(q, i);
   
   queue_p in = queue_new(n);
-  queue_push(in, n-1)
+  queue_push(in, n-1);
 
+  /* Connected random graph */
   while(card = QUEUE_CARD(q)){
     i = RAND_UINT(card);
     v = queue_pop_id(q, i);
 
-    queue_push(q, v);
+    i = RAND_UINT(QUEUE_CARD(in));
+    v2 = in->data[in->bot + i];
+
+    flag = mgraph_add_edge(res, v, v2);
+    edges_left -= flag;
+
+    queue_push(in, v);
   }
+
+  while(edges_left){
+    v = RAND_UINT(n);
+    v2 = RAND_UINT(n-1);
+
+    v2 += v2 < v ? 0 : 1;
+  
+    flag = mgraph_add_edge(res, v, v2);
+    edges_left -= flag;
+  }
+
+  printf("expected : %d, real : %d\n", nb_edges, res->m);
+  return res;
 }
 
 void mgraph_free(mgraph_p g){
@@ -103,7 +142,7 @@ void mgraph_free(mgraph_p g){
   uint i;
   for(i=0; i<g->n; i++){
     free(g->neigh[i]);
-    g->neight[i] = NULL;
+    g->neigh[i] = NULL;
   }
 
   free(g);
@@ -118,6 +157,35 @@ graph_p graph_new(uint n){
   res->vertices = malloc(sizeof(uint)*(n+1));
   res->edges = NULL;
   res->weights = NULL;
+  return res;
+}
+
+graph_p graph_from_mgraph(mgraph_p g){
+  uint i;
+  graph_p res = graph_new(g->n);
+
+  res->vertices[0];
+  for(i=1; i<res->n+1; i++)
+    res->vertices[i] = res->vertices[i-1] + g->deg[i-1];
+
+  res->weights = malloc(sizeof(uint)*g->m);
+  for(i=0; i<g->m; i++){
+    res->weights[i] = 0;
+  }
+  
+  res->edges = malloc(sizeof(uint)*g->m);
+  for(i=0; i<res->n; i++){
+    list_to_array(g->neigh[i], &(res->edges[res->vertices[i]]),
+        res->vertices[i+1] - res->vertices[i]);
+  }
+
+  return res;
+}
+
+graph_p graph_random(uint n){
+  mgraph_p g = mgraph_random(n);
+  graph_p res = graph_from_mgraph(g);
+  mgraph_free(g);
   return res;
 }
 

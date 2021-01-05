@@ -26,7 +26,7 @@
 struct maillon{
   uint v;
   struct maillon * next;
-}
+};
 
 typedef struct maillon * list;
 
@@ -34,7 +34,9 @@ list list_add_sorted(list l, uint v, int* flag);
 
 /* Allocates an array and stores the n firsts elements of l inside.
  * If l is too short, the remaining slots are left untouched.*/
-uint * list_to_array(list l, uint n);
+void list_to_array(list l, uint* dest, uint n);
+
+void list_print(list l);
 
 void list_free(list l);
 
@@ -74,7 +76,7 @@ typedef struct mgraph_t {
 
   /* array of length n */
   list * neigh;
-}
+} mgraph_t;
 
 typedef mgraph_t * mgraph_p;
 
@@ -113,6 +115,8 @@ graph_p graph_new(uint n);
 
 graph_p graph_from_mgraph(mgraph_p g);
 
+graph_p graph_random(uint n);
+
 /* Ensure : performs a deep first search in g from v calling f(v, arg) on
  *    vertex reach. ind indicates the remaining vertices to visit. In order to 
  *    perform a full DFS on g starting on v, ind must be equal to [1..n]\v.
@@ -121,12 +125,6 @@ graph_p graph_from_mgraph(mgraph_p g);
  * */
 void graph_dfs(graph_p g, ind_p ind, uint v, 
     void(*f)(uint, void*), void* arg);
-
-/* Ensure : return 1 if (g, ind union {0}) is connected, 0 otherwise. 
- * Require : validity of g, ind. 
- * WARNING : based of dfs -> may be slow.
- * */
-int graph_is_connected_subgraph(graph_p g, ind_p ind);
 
 /* Ensure : release the memory used by g.
  * */
