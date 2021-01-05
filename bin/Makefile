@@ -2,7 +2,7 @@ CC=gcc
 SRC=../src/
 INCLUDES=-lm
 OPT=-O3
-OBJ=graph.o queue.o
+OBJ=graph.o queue.o departager.o
 
 main.out : $(SRC)main.c $(OBJ)
 	$(CC) $^ -o $@ $(FLAGS) $(OPT) $(INCLUDES)
