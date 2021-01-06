@@ -157,6 +157,10 @@ void pb_rows_b(glp_prob* pb, graph_p g){
       ind[3] = (int) x1+i;
       val[1] = 1.0; val[2] = 1.0; val[3] = -1.0;
 
+      /*  printf("%s %s %s \n", glp_get_col_name(pb, ind[1]),
+          glp_get_col_name(pb, ind[2]), glp_get_col_name(pb, ind[3]));*/
+
+
       spot = offset + i*g->n + j;
       glp_set_row_bnds(pb, (int) spot, GLP_FX, 0.0, 0.0);
 
